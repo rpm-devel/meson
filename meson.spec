@@ -6,20 +6,20 @@
 %bcond_with check
 
 Name:           meson
-Version:        0.59.4
+Version:        1.11.1
 Release:        1%{?dist}
 Summary:        High productivity build system
 
 License:        ASL 2.0
 URL:            https://mesonbuild.com/
-Source:         https://github.com/mesonbuild/meson/releases/download/%{version}/meson-%{version}.tar.gz
+Source0:        https://github.com/mesonbuild/meson/releases/download/%{version}/%{name}-%{version}.tar.gz
 
-BuildArch:      noarch
 
-BuildRequires:  python3-devel
-BuildRequires:  python3-setuptools
+BuildRequires:  python%{python3_pkgversion}-devel
+BuildRequires:  python%{python3_pkgversion}-setuptools
 Requires:       python%{python3_version}dist(setuptools)
 Requires:       ninja-build
+Obsoletes:      meson < %{version}-%{release}
 
 %if %{with check}
 BuildRequires:  ninja-build
@@ -112,6 +112,10 @@ export MESON_PRINT_TEST_OUTPUT=1
 %{_datadir}/polkit-1/actions/com.mesonbuild.install.policy
 
 %changelog
+* Fri Apr 24 2026 CasjaysDev <rpm-devel@casjaysdev.pro> - 1.11.1-1
+- Update to 1.11.1
+- Modernize spec for EL10
+
 * Thu Oct 28 2021 Kalev Lember <klember@redhat.com> - 0.59.4-1
 - Update to 0.59.4
 
