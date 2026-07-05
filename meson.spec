@@ -10,8 +10,9 @@ Version:        1.11.1
 Release:        1%{?dist}
 Summary:        High productivity build system
 
-License:        ASL 2.0
+License:        Apache-2.0
 URL:            https://mesonbuild.com/
+ExclusiveArch:  x86_64 aarch64
 Source0:        https://github.com/mesonbuild/meson/releases/download/%{version}/%{name}-%{version}.tar.gz
 
 
@@ -112,6 +113,10 @@ export MESON_PRINT_TEST_OUTPUT=1
 %{_datadir}/polkit-1/actions/com.mesonbuild.install.policy
 
 %changelog
+* Sat Jul 04 2026 CasjaysDev <rpm-devel@casjaysdev.pro> - 1.11.1-1
+- Source0: GitHub release URL verified (1.11.1 is current, 302→200)
+- SPDX: ASL 2.0 → Apache-2.0; add ExclusiveArch: x86_64 aarch64
+
 * Fri Apr 24 2026 CasjaysDev <rpm-devel@casjaysdev.pro> - 1.11.1-1
 - Update to 1.11.1
 - Modernize spec for EL10
