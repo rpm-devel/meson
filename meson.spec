@@ -5,9 +5,16 @@
 # — ekulik
 %bcond_with check
 
+## EL8 ships python3 3.6 but meson needs >= 3.7, so it is built against the
+## python3.11 AppStream module there
+%if 0%{?rhel} == 8
+%global python3_pkgversion 3.11
+%global __python3 %{_bindir}/python3.11
+%endif
+
 Name:           meson
 Version:        1.11.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        High productivity build system
 
 License:        Apache-2.0
@@ -17,6 +24,7 @@ Source0:        https://github.com/mesonbuild/meson/releases/download/%{version}
 
 
 BuildRequires:  python%{python3_pkgversion}-devel
+BuildRequires:  python%{python3_pkgversion}-rpm-macros
 BuildRequires:  python%{python3_pkgversion}-setuptools
 Requires:       python%{python3_version}dist(setuptools)
 Requires:       ninja-build
@@ -90,6 +98,13 @@ sed -i -e "/^%%__meson /s| .*$| %{_bindir}/%{name}|" data/macros.%{name}
 %install
 %py3_install
 install -Dpm0644 -t %{buildroot}%{rpmmacrodir} data/macros.%{name}
+%if 0%{?rhel} == 8
+# rpm 4.14 cannot parse the %%[ ... ] expression syntax, so the verbose
+# toggles are resolved statically on EL8
+sed -i -e 's|%%\[ 0%%{?__meson_verbose} ? "--verbose" : "" \]|--verbose|' \
+       -e '/%%\[ ! 0%%{?__meson_verbose} ? "--quiet" : "" \]/d' \
+       %{buildroot}%{rpmmacrodir}/macros.%{name}
+%endif
 
 %if %{with check}
 %check
@@ -113,6 +128,16 @@ export MESON_PRINT_TEST_OUTPUT=1
 %{_datadir}/polkit-1/actions/com.mesonbuild.install.policy
 
 %changelog
+* Fri Sep 18 2026 CasjaysDev <rpm-devel@casjaysdev.pro> - 1.11.1-2
+- Build against python3.11 on EL8; the default python3 there is 3.6 and
+  meson requires >= 3.7
+- Strip the %%[ ... ] expression syntax out of the installed macros.meson on
+  EL8, which rpm 4.14 cannot parse
+- Add python%%{python3_pkgversion}-rpm-macros to BuildRequires so %%py3_build
+  and %%py3_install resolve against the interpreter actually being used
+- Needed by lxc >= 6, which requires meson >= 0.61 while EL8 PowerTools only
+  carries 0.58
+
 * Sat Jul 04 2026 CasjaysDev <rpm-devel@casjaysdev.pro> - 1.11.1-1
 - Source0: GitHub release URL verified (1.11.1 is current, 302→200)
 - SPDX: ASL 2.0 → Apache-2.0; add ExclusiveArch: x86_64 aarch64
